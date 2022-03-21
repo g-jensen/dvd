@@ -1,5 +1,7 @@
 # DVD Bounce with C++/SFML + ImGui
 
+Example video: https://www.youtube.com/watch?v=jMBtCJDWGOo
+
 The collision is not simulated, its done by a mathematical equation with the length and width of the rectangle as parameters.  
 
 In the source code for this program, you can find a function to simulate collision which is what I used to figure out the equation but the function is never used.  
