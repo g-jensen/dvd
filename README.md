@@ -10,8 +10,8 @@ In the source code for this program, you can find a function to simulate collisi
 
 Parametric equations for x and y given l = length and w = width:  
 
-x(t) = abs(2 * abs(mod(t + l - (l/2),2 * l) - l) - l)  
-y(t) = abs(2 * abs(mod(t + w - (w/2),2 * w) - w) - w)  
+x(t) = abs(2 * abs(mod((t/2) + l - (l/2),2 * l) - l) - l)  
+y(t) = abs(2 * abs(mod((t/2) + w - (w/2),2 * w) - w) - w)  
 
 This assumes starting at the bottom left of the rectangle at a 45 degree angle.  
 
@@ -36,6 +36,7 @@ Controls:
 Arrow keys to move the camera around.  
 PageUp and PageDown to zoom in and out respectively.  
 Spacebar to pause
+M and N to increment/decrement t by 1
 
 ---
 

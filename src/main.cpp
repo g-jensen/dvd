@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <math.h>
+#include <iostream>
 
 #include "../imgui/imgui.h"
 #include "../imgui/imgui-SFML.h"
@@ -40,6 +41,20 @@ bool intersect(sf::CircleShape &c) {
     }
 
     return false;
+}
+
+int getFirstCornerHitTime(int length, int width) {
+    int max = length * width;
+    for (int i = 1; i <= max; i++) {
+        int value1 = abs(2 * abs(fmod((i/2.f) + length - (length/2.f),2.f * length) - length) - length);
+        if (value1 == 0 || value1 == length) {
+            int value2 = abs(2 * abs(fmod((i/2.f) + width - (width/2.f),2.f * width) - width) - width);
+            if (value2 == 0 || value2 == width) {
+                return i;
+            }
+        }
+    }
+    return -1;
 }
 
 void drawHIW() {
@@ -95,12 +110,15 @@ int main(int argc, char** argv) {
         width = stoi(std::string(argv[2]));
     }
 
+    int corner = getFirstCornerHitTime(length,width);
+    std::cout << corner << std::endl;
+
     sf::CircleShape dvd(3);
     dvd.setPosition(0,0);
 
     float y = 0.f;
     float x = 0.f;
-    uint tick = 0;
+    int tick = 0;
 
     bool pause = false;
 
@@ -156,24 +174,41 @@ int main(int argc, char** argv) {
                     v.zoom(1.5);
                     window.setView(v);
                 }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+                    tick++;
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
+                    tick--;
+                }
             }
         }
         ImGui::SFML::Update(window, dt.restart());
 
         if (!pause) {
-            tick += 1;
+            //tick += 1;
 
             sf::Vector2f newpos;
             
+            // alternate computation
+            /*
+            float tmx = fmod(tick,2*length);
+            tmx = (tmx < length) ? tmx : length-(tmx-length);
+            newpos.x = tmx;
+            
+            float tmy = fmod(tick,2*width);
+            tmy = (tmy < width) ? tmy : width-(tmy-width);
+            newpos.y = tmy;
+            */
+
             newpos.x = abs(
                 2 * abs(
-                    fmod(tick + length - (length/2.f),2.f * length) - length
+                    fmod((tick/2.f) + length - (length/2.f),2.f * length) - length
                 ) - length
             );
-            
+
             newpos.y = abs(
                 2 * abs(
-                    fmod(tick + width - (width/2.f),2.f * width) - width
+                    fmod((tick/2.f) + width - (width/2.f),2.f * width) - width
                 ) - width
             );
 
@@ -189,7 +224,7 @@ int main(int argc, char** argv) {
         ImGui::End();
 
         ImGui::Begin("t");
-        ImGui::Text("%i",tick);
+        ImGui::InputInt("t",&tick);
         ImGui::End();
 
         ImGui::Begin("How it works (copy of README.md)");
