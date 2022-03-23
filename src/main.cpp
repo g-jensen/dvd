@@ -6,18 +6,12 @@
 #include "../imgui/imgui.h"
 #include "../imgui/imgui-SFML.h"
 
-sf::RectangleShape left;
-sf::RectangleShape right;
-sf::RectangleShape top;
-sf::RectangleShape bottom;
-
-sf::Vector2f velocity {1,1};
-
-bool intersect(sf::CircleShape &c) {
-    auto hb1 = top.getGlobalBounds();
-    auto hb2 = right.getGlobalBounds();
-    auto hb3 = bottom.getGlobalBounds();
-    auto hb4 = left.getGlobalBounds();
+// unsed function
+bool intersect(sf::CircleShape &c, sf::Vector2f velocity, sf::RectangleShape t, sf::RectangleShape r, sf::RectangleShape b, sf::RectangleShape l) {
+    auto hb1 = t.getGlobalBounds();
+    auto hb2 = r.getGlobalBounds();
+    auto hb3 = b.getGlobalBounds();
+    auto hb4 = l.getGlobalBounds();
 
     auto pos = c.getPosition();
 
@@ -103,6 +97,14 @@ int main(int argc, char** argv) {
 
     ImGui::SFML::Init(window);
 
+    sf::RectangleShape left;
+    sf::RectangleShape right;
+    sf::RectangleShape top;
+    sf::RectangleShape bottom;
+
+    sf::Vector2f velocity {1,1};
+
+
     float length = 533;
     float width = 300;
     if (argc > 2) {
@@ -122,18 +124,19 @@ int main(int argc, char** argv) {
 
     bool pause = false;
 
-{
-    left = sf::RectangleShape({width+1,1});
-    left.rotate(90);
-    left.setPosition({-1,0});
-    right = sf::RectangleShape({width+1,1});
-    right.rotate(90);
-    right.setPosition({length+1,0});
-    top = sf::RectangleShape({length+1,1});
-    top.setPosition({-1,-1});
-    bottom = sf::RectangleShape({length+1,1});
-    bottom.setPosition({-1,width+1});
-}
+    {
+        left = sf::RectangleShape({width+1,1});
+        left.rotate(90);
+        left.setPosition({-1,0});
+        right = sf::RectangleShape({width+1,1});
+        right.rotate(90);
+        right.setPosition({length+1,0});
+        top = sf::RectangleShape({length+1,1});
+        top.setPosition({-1,-1});
+        bottom = sf::RectangleShape({length+1,1});
+        bottom.setPosition({-1,width+1});
+    }
+
     while (window.isOpen()) {
         x = dvd.getPosition().x;
         y = dvd.getPosition().y;
@@ -185,7 +188,7 @@ int main(int argc, char** argv) {
         ImGui::SFML::Update(window, dt.restart());
 
         if (!pause) {
-            //tick += 1;
+            tick += 1;
 
             sf::Vector2f newpos;
             
