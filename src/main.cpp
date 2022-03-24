@@ -85,6 +85,23 @@ void drawHIW() {
     ImGui::TreePop();
 }
 
+void updatePos(sf::CircleShape& dvd, float length, float width, int tick) {
+    sf::Vector2f newpos;
+    newpos.x = abs(
+        2 * abs(
+            fmod((tick/2.f) + length - (length/2.f),2.f * length) - length
+        ) - length
+    );
+
+    newpos.y = abs(
+        2 * abs(
+            fmod((tick/2.f) + width - (width/2.f),2.f * width) - width
+        ) - width
+    );
+
+    dvd.setPosition(newpos);
+}
+
 int main(int argc, char** argv) {
     sf::RenderWindow window(sf::VideoMode(1200, 800), "DVD");
 
@@ -115,26 +132,34 @@ int main(int argc, char** argv) {
     int corner = getFirstCornerHitTime(length,width);
     std::cout << corner << std::endl;
 
-    sf::CircleShape dvd(3);
+    sf::CircleShape dvd(0.5);
     dvd.setPosition(0,0);
+    dvd.setFillColor(sf::Color::Green);
 
     float y = 0.f;
     float x = 0.f;
     int tick = 0;
 
-    bool pause = false;
+    bool pause = true;
+    bool doLines = true;
+
+    std::vector<sf::VertexArray> lines;
+
+    sf::VertexArray va(sf::Lines,2);
+
+    sf::Vector2f prevPos = {0,0};
 
     {
-        left = sf::RectangleShape({width+1,1});
+        left = sf::RectangleShape({width,1});
         left.rotate(90);
-        left.setPosition({-1,0});
-        right = sf::RectangleShape({width+1,1});
+        left.setPosition({0,0});
+        right = sf::RectangleShape({width,1});
         right.rotate(90);
         right.setPosition({length+1,0});
-        top = sf::RectangleShape({length+1,1});
-        top.setPosition({-1,-1});
-        bottom = sf::RectangleShape({length+1,1});
-        bottom.setPosition({-1,width+1});
+        top = sf::RectangleShape({length,1});
+        top.setPosition({0,-1});
+        bottom = sf::RectangleShape({length,1});
+        bottom.setPosition({0,width});
     }
 
     while (window.isOpen()) {
@@ -179,9 +204,11 @@ int main(int argc, char** argv) {
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
                     tick++;
+                    updatePos(dvd,length,width,tick);
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
                     tick--;
+                    updatePos(dvd,length,width,tick);
                 }
             }
         }
@@ -203,19 +230,15 @@ int main(int argc, char** argv) {
             newpos.y = tmy;
             */
 
-            newpos.x = abs(
-                2 * abs(
-                    fmod((tick/2.f) + length - (length/2.f),2.f * length) - length
-                ) - length
-            );
+            updatePos(dvd,length,width,tick);
+        }
 
-            newpos.y = abs(
-                2 * abs(
-                    fmod((tick/2.f) + width - (width/2.f),2.f * width) - width
-                ) - width
-            );
-
-            dvd.setPosition(newpos);
+        if ((x == length || x == 0 || y == 0 || y == width) && (tick <= corner+1)) {
+            sf::VertexArray va(sf::Lines,2);
+            va[0].position = prevPos;
+            va[1].position = {x,y};
+            prevPos = {x,y};
+            lines.push_back(va);
         }
 
         ImGui::Begin("y");
@@ -230,18 +253,29 @@ int main(int argc, char** argv) {
         ImGui::InputInt("t",&tick);
         ImGui::End();
 
+        ImGui::Begin("lines");
+        ImGui::Checkbox("lines",&doLines);
+        ImGui::End();
+
         ImGui::Begin("How it works (copy of README.md)");
         drawHIW();
         ImGui::End();
         
         window.clear(sf::Color::Black);
 
-        window.draw(dvd);
 
         window.draw(left);
         window.draw(right);
         window.draw(top);
         window.draw(bottom);
+
+        if (doLines) {
+            for (sf::VertexArray l: lines) {
+                window.draw(l);
+            }
+        }
+
+        window.draw(dvd);
 
         ImGui::SFML::Render(window);
 
